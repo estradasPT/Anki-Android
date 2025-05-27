@@ -234,7 +234,7 @@ abstract class AbstractFlashcardViewer :
     private var touchLayer: FrameLayout? = null
     protected var answerField: FixedEditText? = null
     protected var flipCardLayout: FrameLayout? = null
-    private var easeButtonsLayout: LinearLayout? = null
+    private var easeButtonsLayout: ViewGroup? = null
 
     internal var easeButton1: EaseButton? = null
     internal var easeButton2: EaseButton? = null
@@ -874,34 +874,56 @@ abstract class AbstractFlashcardViewer :
 
         // Initialize swipe
         gestureDetector = GestureDetector(this, gestureDetectorImpl)
-        easeButtonsLayout = findViewById(R.id.ease_buttons)
+
+        // Dynamic inflation of answer buttons layout
+        val answerButtonsPosition =
+            sharedPrefs().getString(
+                getString(R.string.answer_buttons_position_preference),
+                "bottom",
+            ) ?: "bottom"
+        this.answerButtonsPosition = answerButtonsPosition
+
+        val container = findViewById<ViewGroup>(R.id.answer_buttons_container)
+        container.removeAllViews()
+
+        val layoutRes =
+            when (answerButtonsPosition) {
+                "left", "right" -> R.layout.reviewer_answer_buttons_square
+                else -> R.layout.reviewer_answer_buttons
+            }
+
+        val answerButtonsView = LayoutInflater.from(this).inflate(layoutRes, container, false)
+        container.addView(answerButtonsView)
+
+        // Buttons and layouts inside dynamically inflated layout
+        easeButtonsLayout = answerButtonsView.findViewById(R.id.ease_buttons)
         easeButton1 =
             EaseButton(
                 Ease.AGAIN,
-                findViewById(R.id.flashcard_layout_ease1),
-                findViewById(R.id.ease1),
-                findViewById(R.id.nextTime1),
+                answerButtonsView.findViewById(R.id.flashcard_layout_ease1),
+                answerButtonsView.findViewById(R.id.ease1),
+                answerButtonsView.findViewById(R.id.nextTime1),
             ).apply { setListeners(easeHandler) }
         easeButton2 =
             EaseButton(
                 Ease.HARD,
-                findViewById(R.id.flashcard_layout_ease2),
-                findViewById(R.id.ease2),
-                findViewById(R.id.nextTime2),
+                answerButtonsView.findViewById(R.id.flashcard_layout_ease2),
+                answerButtonsView.findViewById(R.id.ease2),
+                answerButtonsView.findViewById(R.id.nextTime2),
             ).apply { setListeners(easeHandler) }
         easeButton3 =
             EaseButton(
                 Ease.GOOD,
-                findViewById(R.id.flashcard_layout_ease3),
-                findViewById(R.id.ease3),
-                findViewById(R.id.nextTime3),
+                answerButtonsView.findViewById(R.id.flashcard_layout_ease3),
+                answerButtonsView.findViewById(R.id.ease3),
+                answerButtonsView.findViewById(R.id.nextTime3),
             ).apply { setListeners(easeHandler) }
         easeButton4 =
             EaseButton(
                 Ease.EASY,
-                findViewById(R.id.flashcard_layout_ease4),
-                findViewById(R.id.ease4),
-                findViewById(R.id.nextTime4),
+                answerButtonsView.findViewById(R.id.flashcard_layout_ease4),
+                answerButtonsView.findViewById(R.id.ease4),
+                answerButtonsView.findViewById(R.id.nextTime4),
             ).apply { setListeners(easeHandler) }
         if (!showNextReviewTime) {
             easeButton1!!.hideNextReviewTime()
@@ -909,7 +931,7 @@ abstract class AbstractFlashcardViewer :
             easeButton3!!.hideNextReviewTime()
             easeButton4!!.hideNextReviewTime()
         }
-        flipCardLayout = findViewById(R.id.flashcard_layout_flip)
+        flipCardLayout = answerButtonsView.findViewById(R.id.flashcard_layout_flip)
         flipCardLayout?.let { layout ->
             if (minimalClickSpeed == 0) {
                 layout.setOnClickListener(flipCardListener)
@@ -951,17 +973,11 @@ abstract class AbstractFlashcardViewer :
             val params = flipCardLayout!!.layoutParams
             params.height = initialFlipCardHeight * 2
         }
-        answerField = findViewById(R.id.answer_field)
+        answerField = answerButtonsView.findViewById(R.id.answer_field)
         initControls()
 
-        // Position answer buttons
-        val answerButtonsPosition =
-            this.sharedPrefs().getString(
-                getString(R.string.answer_buttons_position_preference),
-                "bottom",
-            )
         this.answerButtonsPosition = answerButtonsPosition
-        val answerArea = findViewById<LinearLayout>(R.id.bottom_area_layout)
+        val answerArea = findViewById<FrameLayout>(R.id.answer_buttons_container)
         val answerAreaParams = answerArea.layoutParams as RelativeLayout.LayoutParams
         val whiteboardContainer = findViewById<FrameLayout>(R.id.whiteboard)
         val whiteboardContainerParams =
@@ -970,9 +986,9 @@ abstract class AbstractFlashcardViewer :
         val touchLayerContainerParams = touchLayer!!.layoutParams as RelativeLayout.LayoutParams
         when (answerButtonsPosition) {
             "top" -> {
-                whiteboardContainerParams.addRule(RelativeLayout.BELOW, R.id.bottom_area_layout)
-                flashcardContainerParams.addRule(RelativeLayout.BELOW, R.id.bottom_area_layout)
-                touchLayerContainerParams.addRule(RelativeLayout.BELOW, R.id.bottom_area_layout)
+                whiteboardContainerParams.addRule(RelativeLayout.BELOW, R.id.answer_buttons_container)
+                flashcardContainerParams.addRule(RelativeLayout.BELOW, R.id.answer_buttons_container)
+                touchLayerContainerParams.addRule(RelativeLayout.BELOW, R.id.answer_buttons_container)
                 answerAreaParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
                 answerArea.removeView(answerField)
                 answerArea.addView(answerField, 1)
@@ -981,18 +997,40 @@ abstract class AbstractFlashcardViewer :
             "bottom",
             "none",
             -> {
-                whiteboardContainerParams.addRule(RelativeLayout.ABOVE, R.id.bottom_area_layout)
+                whiteboardContainerParams.addRule(RelativeLayout.ABOVE, R.id.answer_buttons_container)
                 whiteboardContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
-                flashcardContainerParams.addRule(RelativeLayout.ABOVE, R.id.bottom_area_layout)
+                flashcardContainerParams.addRule(RelativeLayout.ABOVE, R.id.answer_buttons_container)
                 flashcardContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
-                touchLayerContainerParams.addRule(RelativeLayout.ABOVE, R.id.bottom_area_layout)
+                touchLayerContainerParams.addRule(RelativeLayout.ABOVE, R.id.answer_buttons_container)
                 touchLayerContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
                 answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
             }
 
+            "left" -> {
+                // Stick buttons container to left
+                answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
+                answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+
+                // Card/touch/whiteboard should be to the right of the buttons
+                whiteboardContainerParams.addRule(RelativeLayout.RIGHT_OF, R.id.answer_buttons_container)
+                flashcardContainerParams.addRule(RelativeLayout.RIGHT_OF, R.id.answer_buttons_container)
+                touchLayerContainerParams.addRule(RelativeLayout.RIGHT_OF, R.id.answer_buttons_container)
+            }
+
+            "right" -> {
+                // Stick buttons container to right
+                answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+                answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+
+                // Card/touch/whiteboard should be to the left of the buttons
+                whiteboardContainerParams.addRule(RelativeLayout.LEFT_OF, R.id.answer_buttons_container)
+                flashcardContainerParams.addRule(RelativeLayout.LEFT_OF, R.id.answer_buttons_container)
+                touchLayerContainerParams.addRule(RelativeLayout.LEFT_OF, R.id.answer_buttons_container)
+            }
+
             else -> Timber.w("Unknown answerButtonsPosition: %s", answerButtonsPosition)
         }
-        answerArea.visibility = if (answerButtonsPosition == "none") View.GONE else View.VISIBLE
+        container.visibility = if (answerButtonsPosition == "none") View.GONE else View.VISIBLE
         // workaround for #14419, iterate over the bottom area children and manually enable the
         // answer field while still hiding the other children
         if (answerButtonsPosition == "none") {
@@ -1096,7 +1134,9 @@ abstract class AbstractFlashcardViewer :
         flipCardLayout!!.isClickable = false
         easeButtonsLayout!!.visibility = View.VISIBLE
         if (largeAnswerButtons) {
-            easeButtonsLayout!!.orientation = LinearLayout.VERTICAL
+            if (easeButtonsLayout is LinearLayout) { // orientation is specific to LinearLayout
+                (easeButtonsLayout as LinearLayout).orientation = LinearLayout.VERTICAL
+            }
             easeButtonsLayout!!.removeAllViewsInLayout()
             easeButton1!!.detachFromParent()
             easeButton2!!.detachFromParent()

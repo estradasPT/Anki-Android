@@ -12,7 +12,8 @@
         android:id="@+id/front_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <include layout="@layout/toolbar"/>
+
+        <include layout="@layout/toolbar" />
 
         <include
             layout="@layout/reviewer_topbar"
@@ -36,14 +37,14 @@
             layout="@layout/reviewer_whiteboard_editor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_above="@+id/bottom_area_layout"/>
+            android:layout_above="@+id/bottom_area_layout"
+            android:layout_centerHorizontal="true" />
 
-        <FrameLayout
-            android:id="@+id/answer_buttons_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
+        <include
+            layout="@layout/reviewer_answer_buttons_square"
+            tools:layout_alignParentBottom="true"
+            tools:layout_height="wrap_content"
+            tools:layout_width="match_parent" />
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 <!-- Left navigation drawer -->
