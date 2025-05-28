@@ -986,12 +986,23 @@ abstract class AbstractFlashcardViewer :
         val touchLayerContainerParams = touchLayer!!.layoutParams as RelativeLayout.LayoutParams
         when (answerButtonsPosition) {
             "top" -> {
+                answerAreaParams.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+                answerAreaParams.removeRule(RelativeLayout.ALIGN_PARENT_TOP)
+
+                answerAreaParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+
                 whiteboardContainerParams.addRule(RelativeLayout.BELOW, R.id.answer_buttons_container)
                 flashcardContainerParams.addRule(RelativeLayout.BELOW, R.id.answer_buttons_container)
                 touchLayerContainerParams.addRule(RelativeLayout.BELOW, R.id.answer_buttons_container)
-                answerAreaParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
-                answerArea.removeView(answerField)
-                answerArea.addView(answerField, 1)
+
+                (answerField?.parent as? ViewGroup)?.removeView(answerField)
+                answerField?.let { answerArea.addView(it, 1) }
+
+                answerArea.layoutParams =
+                    answerArea.layoutParams.apply {
+                        width = ViewGroup.LayoutParams.MATCH_PARENT
+                        height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    }
             }
 
             "bottom",
@@ -1004,28 +1015,64 @@ abstract class AbstractFlashcardViewer :
                 touchLayerContainerParams.addRule(RelativeLayout.ABOVE, R.id.answer_buttons_container)
                 touchLayerContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
                 answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+
+                answerArea.layoutParams =
+                    answerArea.layoutParams.apply {
+                        width = ViewGroup.LayoutParams.MATCH_PARENT
+                        height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    }
             }
 
             "left" -> {
-                // Stick buttons container to left
+                val topMarginPx = 700
+                // Position answer buttons on the left below the toolbar
                 answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
-                answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                answerAreaParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
 
-                // Card/touch/whiteboard should be to the right of the buttons
+                answerAreaParams.topMargin = topMarginPx
+
+                // Place whiteboard/card/touch to the right of the buttons and below the toolbar
                 whiteboardContainerParams.addRule(RelativeLayout.RIGHT_OF, R.id.answer_buttons_container)
+                whiteboardContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+
                 flashcardContainerParams.addRule(RelativeLayout.RIGHT_OF, R.id.answer_buttons_container)
+                flashcardContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+
                 touchLayerContainerParams.addRule(RelativeLayout.RIGHT_OF, R.id.answer_buttons_container)
+                touchLayerContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+
+                // Apply button area sizing
+                answerArea.layoutParams =
+                    answerAreaParams.apply {
+                        width = ViewGroup.LayoutParams.WRAP_CONTENT
+                        height = ViewGroup.LayoutParams.MATCH_PARENT
+                    }
             }
 
             "right" -> {
-                // Stick buttons container to right
+                val topMarginPx = 700
+                // Position answer buttons on the right below the toolbar
                 answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-                answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                answerAreaParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
 
-                // Card/touch/whiteboard should be to the left of the buttons
+                answerAreaParams.topMargin = topMarginPx
+
+                // Place whiteboard/card/touch to the left of the buttons and below the toolbar
                 whiteboardContainerParams.addRule(RelativeLayout.LEFT_OF, R.id.answer_buttons_container)
+                whiteboardContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+
                 flashcardContainerParams.addRule(RelativeLayout.LEFT_OF, R.id.answer_buttons_container)
+                flashcardContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+
                 touchLayerContainerParams.addRule(RelativeLayout.LEFT_OF, R.id.answer_buttons_container)
+                touchLayerContainerParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+
+                // Apply button area sizing
+                answerArea.layoutParams =
+                    answerAreaParams.apply {
+                        width = ViewGroup.LayoutParams.WRAP_CONTENT
+                        height = ViewGroup.LayoutParams.MATCH_PARENT
+                    }
             }
 
             else -> Timber.w("Unknown answerButtonsPosition: %s", answerButtonsPosition)
