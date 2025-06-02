@@ -27,6 +27,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.hardware.SensorManager
@@ -984,6 +985,8 @@ abstract class AbstractFlashcardViewer :
             whiteboardContainer.layoutParams as RelativeLayout.LayoutParams
         val flashcardContainerParams = cardFrame!!.layoutParams as RelativeLayout.LayoutParams
         val touchLayerContainerParams = touchLayer!!.layoutParams as RelativeLayout.LayoutParams
+        val displayMetrics = Resources.getSystem().displayMetrics
+
         when (answerButtonsPosition) {
             "top" -> {
                 answerAreaParams.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
@@ -1024,12 +1027,12 @@ abstract class AbstractFlashcardViewer :
             }
 
             "left" -> {
-                val topMarginPx = 700
+                val topMarginPx = (displayMetrics.heightPixels - 144 * displayMetrics.density) / 2
                 // Position answer buttons on the left below the toolbar
                 answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
-                answerAreaParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+                answerAreaParams.addRule(RelativeLayout.CENTER_VERTICAL)
 
-                answerAreaParams.topMargin = topMarginPx
+                answerAreaParams.topMargin = topMarginPx.toInt()
 
                 // Place whiteboard/card/touch to the right of the buttons and below the toolbar
                 whiteboardContainerParams.addRule(RelativeLayout.RIGHT_OF, R.id.answer_buttons_container)
@@ -1050,12 +1053,12 @@ abstract class AbstractFlashcardViewer :
             }
 
             "right" -> {
-                val topMarginPx = 700
+                val topMarginPx = (displayMetrics.heightPixels - 144 * displayMetrics.density) / 2
                 // Position answer buttons on the right below the toolbar
                 answerAreaParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-                answerAreaParams.addRule(RelativeLayout.BELOW, R.id.mic_tool_bar_layer)
+                answerAreaParams.addRule(RelativeLayout.CENTER_VERTICAL)
 
-                answerAreaParams.topMargin = topMarginPx
+                answerAreaParams.topMargin = topMarginPx.toInt()
 
                 // Place whiteboard/card/touch to the left of the buttons and below the toolbar
                 whiteboardContainerParams.addRule(RelativeLayout.LEFT_OF, R.id.answer_buttons_container)
