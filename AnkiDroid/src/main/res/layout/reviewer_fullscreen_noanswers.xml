@@ -36,7 +36,11 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_above="@+id/bottom_area_layout"/>
-            <include layout="@layout/reviewer_answer_buttons"/>
+            <FrameLayout
+                android:id="@+id/answer_buttons_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true" />
 
         </RelativeLayout>
     </RelativeLayout>

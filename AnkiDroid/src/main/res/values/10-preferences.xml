@@ -70,6 +70,8 @@
         <item>Top</item>
         <item>Bottom</item>
         <item>None</item>
+        <item>Left</item>
+        <item>Right</item>
     </string-array>
     <string name="gestures" maxLength="41">Enable gestures</string>
     <string name="gestures_summ">Assign gestures to actions such as answering and editing cards.</string>
